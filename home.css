@@ -1,0 +1,278 @@
+@font-face {
+    font-family: DOTCIRFUL;
+    src: url("DOTCIRFUL Regular.otf");
+}
+
+/* Universal box-sizing for easier layout */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #000000;
+    color: rgb(193, 193, 193);
+    text-align: center;
+    min-height: 100vh; /* Use min-height to allow content to push footer down */
+    margin: 0; /* Remove default body margin */
+    display: flex; /* Use flexbox for body to push footer to bottom */
+    flex-direction: column;
+}
+
+header {
+    flex-shrink: 0; /* Prevent header from shrinking */
+    padding: 20px;
+}
+
+.name {
+    font-family: 'DOTCIRFUL', sans-serif;
+    font-size: 150px;
+    letter-spacing: 25px;
+    color: rgba(255, 255, 255, 0.973);
+    text-align: center;
+    animation: colorChange 3s infinite alternate;
+    margin-top: 50px; /* Adjust as needed */
+    margin-bottom: 20px;
+}
+
+@keyframes colorChange {
+  from { color: #d4d4d4d7; }
+  to { color: #ffffffe3; }
+}
+
+li {
+    list-style: none;
+}
+
+a {
+    text-decoration: none;
+    color: #9CA3AF; /* Default link color for footer */
+    transition: color 0.3s ease; /* Smooth transition for hover */
+}
+
+a:hover {
+    color: rgb(255, 255, 255);
+}
+
+button {
+    height: 50px;
+    width: 147px;
+    border-radius: 25px;
+    font-weight: 500;
+    font-size: 93%;
+    font-family: sans-serif;
+    letter-spacing: 4px;
+    border: 2px solid white; /* Changed to solid for clarity */
+    box-shadow: 1px 1px rgb(51, 51, 51);
+    color: rgb(255, 255, 255);
+    background-color: transparent; /* Using transparent for better control */
+    display: block;   
+    margin: 20px auto;
+    transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease; /* Added more transitions */
+    cursor: pointer;
+}
+
+button:hover {
+  transform: scale(0.95); /* Slightly reduced scale for smoother effect */
+  background-color: rgba(255, 255, 255, 0.1); /* Subtle background on hover */
+  color: white;
+}
+
+/* Footer Styling */
+.footer {
+    background-color: #000000;
+    padding: 50px 20px 20px; /* Added padding to bottom */
+    text-align: center;
+    margin-top: auto; /* Pushes footer to the bottom */
+    flex-shrink: 0; /* Prevent footer from shrinking */
+    width: 100%; /* Ensure footer takes full width */
+}
+
+.footer-content {
+    display: flex;
+    flex-wrap: wrap; /* Allows items to wrap onto the next line */
+    justify-content: center; /* Center footer sections */
+    max-width: 1200px; /* Max width for content on large screens */
+    margin: 0 auto; /* Center the footer content */
+}
+
+.footer-section {
+    flex-basis: 100%; /* Default to full width on small screens */
+    padding: 20px;
+    margin-bottom: 20px; /* Space between sections when stacked */
+}
+
+.footer-section h2 {
+    color: white;
+    font-size: 24px; /* Default font size for footer titles */
+    margin-bottom: 15px;
+}
+
+.footer-section.about-us h2 {
+    color: white;
+}
+
+.footer-section.about-us .about-text {
+    white-space: pre-wrap;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 16px;
+    font-weight: bolder;
+    margin: 0 auto;
+    max-width: 700px; /* Constrain width of about text */
+    color: rgb(193, 193, 193);
+}
+
+.footer-section ul {
+    padding: 0;
+    list-style: none;
+}
+
+.footer-section li {
+    margin-bottom: 10px;
+}
+
+.footer-section li p {
+    margin: 0; /* Remove default paragraph margin */
+}
+
+/* Icons styling */
+.icons ul {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px; /* Space between icons */
+    padding: 0;
+    margin-top: 15px;
+}
+
+.icons img {
+    width: 38px; /* Slightly larger icons */
+    height: 38px;
+    transition: transform 0.2s ease;
+}
+
+.icons img:hover {
+    transform: scale(1.1);
+}
+
+.terms-section {
+    flex-basis: 100%; /* Ensure terms take full width */
+    margin-top: 20px;
+}
+
+.copyright {
+    display: block; /* Ensure copyright text is on its own line */
+    margin-top: 15px;
+    font-size: 14px;
+    color: rgb(193, 193, 193);
+}
+
+.echo-connect {
+    font-weight: bold;
+    color: white;
+}
+
+
+/* --- Media Queries --- */
+
+/* For Desktops and larger tablets (769px and up) */
+@media (min-width: 769px) {
+    .footer-section {
+        flex-basis: 30%; /* Three columns for most sections */
+        max-width: 300px; /* Limit individual section width */
+        margin: 0 15px 30px; /* Add horizontal spacing */
+    }
+    .footer-section.about-us {
+        flex-basis: 100%; /* About Us takes full width on its own row */
+        max-width: 1000px;
+    }
+    .footer-section.follow-us {
+        flex-basis: 100%; /* Follow Us takes full width for icons */
+        max-width: 1000px;
+        margin-top: 30px;
+    }
+    .footer-section.terms-section,
+    .copyright {
+        flex-basis: 100%; /* Terms and copyright always full width */
+        margin-top: 20px;
+    }
+    .icons ul {
+        gap: 25px; /* More space between icons on larger screens */
+    }
+}
+
+
+/* For Tablets (max 768px) */
+@media (max-width: 768px) {
+    .name {
+        font-size: 90px;
+        letter-spacing: 15px;
+        margin-top: 30px;
+    }
+    button {
+        width: 120px;
+        height: 45px;
+        font-size: 85%;
+        letter-spacing: 3px;
+    }
+    .footer {
+        padding: 30px 15px 15px;
+    }
+    .footer-section {
+        padding: 15px 10px;
+        margin-bottom: 15px;
+    }
+    .footer-section h2 {
+        font-size: 20px;
+    }
+    .footer-section.about-us .about-text {
+        font-size: 14px;
+        max-width: 90%;
+    }
+    .icons img {
+        width: 32px;
+        height: 32px;
+    }
+    .copyright {
+        font-size: 12px;
+    }
+}
+
+/* For Mobile Phones (max 480px) */
+@media (max-width: 480px) {
+    .name {
+        font-size: 60px;
+        letter-spacing: 10px;
+        margin-top: 20px;
+    }
+    button {
+        width: 100px;
+        height: 40px;
+        font-size: 80%;
+        letter-spacing: 2px;
+        margin: 15px auto;
+    }
+    .footer {
+        padding: 20px 10px 10px;
+    }
+    .footer-section {
+        padding: 10px 5px;
+        margin-bottom: 10px;
+    }
+    .footer-section h2 {
+        font-size: 18px;
+    }
+    .footer-section.about-us .about-text {
+        font-size: 12px;
+    }
+    .footer-section li p, .footer-section li a {
+        font-size: 14px;
+    }
+    .icons img {
+        width: 28px;
+        height: 28px;
+    }
+    .copyright {
+        font-size: 11px;
+        margin-top: 10px;
+    }
+}

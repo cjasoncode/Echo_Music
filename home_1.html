@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="favicon.jpeg" type="image/jpeg">  
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+
+<title>Music Gallery by Genre</title>
+<style>
+  @font-face {
+    font-family:"DOTCIRFUL";
+    src: url("DOTCIRFUL Regular.otf"); /* Make sure this font file is in the same directory */
+  }
+
+li{
+    list-style: none;
+}
+
+a{
+  text-decoration: none; /* Removed list-style-type from anchor, text-decoration is more appropriate */
+}
+
+/* Card hover effect for span (song title) */
+.card span {
+  opacity: 0;
+  transition: opacity 0.3s;
+  position: absolute;
+  bottom: 0;
+  left: 0; /* Ensure it covers the whole width */
+  width: 100%;
+}
+.card:hover span {
+  opacity: 1;
+}
+
+/* Glow animation for playing cards */
+@keyframes pulseGlow {
+  0% {
+    box-shadow: 0 0 5px rgba(72, 145, 255, 0.4),
+                0 0 10px rgba(72, 145, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(72, 145, 255, 0.9),
+                0 0 40px rgba(72, 145, 255, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(72, 145, 255, 0.4),
+                0 0 10px rgba(72, 145, 255, 0.3);
+  }
+}
+
+/* Apply when card is playing */
+.playing {
+  animation: pulseGlow 3s infinite ease-in-out;
+}
+
+/* Small text for song titles */
+small{
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-weight: bolder;
+}
+
+/* General Body Styling */
+body {
+    font-family: Arial, sans-serif;
+    background: #000000;
+    color: white;
+    text-align: center;
+    margin: 0;
+    padding: 20px;
+    position: relative; /* Needed for video-bg z-index to work correctly */
+}
+ 
+/* Header Styling */
+.header {
+    margin-bottom: 30px;
+    font-family: "DOTCIRFUL";
+    letter-spacing: 10px;
+    font-size: 80px;
+}
+
+/* Genre Section Styling */
+.genre {
+    margin-bottom: 40px;
+}
+
+.genre h2 {
+    margin-bottom: 15px;
+    color: #d22da0;
+    font-size: 40px;
+    font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+}
+
+/* Grid for music cards */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 15px;
+    max-width: 1000px;
+    margin: auto;
+}
+
+/* Individual Music Card Styling */
+.card {
+    background: #1e293b;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.4s ease, background 0.3s;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Added subtle shadow */
+}
+
+.card img {
+    width: 100%;
+    display: block;
+    border-radius: 10px;
+}
+
+.card span {
+    display: block;
+    padding: 5px 0;
+    color: white;
+    font-size: 14px;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.759);
+}
+
+.card:hover {
+    transform: scale(1.05);
+    background: #334155;
+}
+
+/* Specific styling for looping state */
+.looping {
+  border: 2px solid #47fa15; /* Green border for looping */
+}
+
+/* Video Background */
+.video-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1; /* Push behind everything */
+    filter: blur(20px) brightness(70%);
+}
+
+/* --- Search Bar Styling --- */
+.search-bar-container {
+    margin: 30px auto;
+    max-width: 600px; /* Adjust max-width as needed */
+    width: 90%;
+    background-color: #0d0d0e00; /* Match card background */
+    padding: 15px 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.483);
+    display: flex; /* Use flexbox for input and potential button */
+    align-items: center;
+    gap: 10px;
+}
+
+#searchMusicInput {
+    flex-grow: 1; /* Allow input to take up available space */
+    padding: 12px 18px;
+    border: 1px solid #33415500;
+    border-radius: 8px;
+    background-color: #0d121b00; /* Darker input background */
+    color: white;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#searchMusicInput::placeholder {
+    color: #a0aec0; /* Lighter placeholder text */
+}
+
+ 
+
+/* Hide class for JavaScript filtering */
+.hide-card {
+    display: none !important; /* Use !important to override other display properties */
+}
+
+/* --- Footer Styling --- */
+.footer {
+    background-color: rgba(31, 29, 29, 0.185);
+    margin-top: 300px;
+    padding: 50px 20px;
+    text-align: center;
+    overflow: hidden; /* Clear floats */
+}
+
+.footer h2 {
+    color: #e43cb2;
+    font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    font-size: 400%;
+    margin-bottom: 20px;
+}
+
+.footer h2.about-us-title { /* Specific class for About Us title if needed */
+    margin-bottom: 20px;
+}
+
+.footer .about-text pre {
+    white-space: pre-wrap;
+    font-family:Verdana, Geneva, Tahoma, sans-serif;
+    font-size: large;
+    font-weight: bolder;
+    margin: 0 auto 30px auto;
+    max-width: 800px;
+    text-align: center; /* Center about text */
+}
+
+/* Original float-based columns for footer links */
+.footer-links-container {
+    max-width: 1000px; /* Constrain width like grid */
+    margin: 0 auto;
+    overflow: hidden; /* Clear floats inside */
+    margin-bottom: 50px; /* Space before follow us */
+}
+
+.footer-section-left, .footer-section-right {
+    width: 48%; /* Roughly half */
+    box-sizing: border-box;
+    padding: 0 10px; /* Internal padding */
+}
+
+.footer-section-left {
+    float: left;
+    text-align: left;
+}
+
+.footer-section-right {
+    float: right;
+    text-align: right;
+}
+
+.footer-section-left ul, .footer-section-right ul {
+    padding: 0;
+    margin-top: 10px;
+}
+
+.footer-section-left li, .footer-section-right li {
+    margin-bottom: 10px;
+}
+
+.footer-section-left p, .footer-section-left a,
+.footer-section-right p, .footer-section-right a {
+    color: #ffffff;
+    text-decoration: none;
+    font-family:Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 16px;
+}
+
+.footer-section-right .home {
+    background-color: #fff;
+    color: #000000;
+    padding: 15px 25px;
+    border-radius: 22px;
+    font-weight: bold;
+    display: inline-block;
+}
+
+/* Follow Us and Icons */
+.follow-us-section {
+    clear: both; /* Clear floats from previous sections */
+    margin-top: 50px;
+    padding-top: 20px; /* Space above icons */
+}
+
+.follow-us-section h2 {
+    margin-bottom: 20px;
+}
+
+.footer .icons ul {
+    display: flex;
+    justify-content: center;
+    padding: 0;
+    flex-wrap: wrap;
+    gap: 20px;
+    max-width: 600px; /* Constrain icon row width */
+    margin: 0 auto; /* Center the icon row */
+}
+
+.footer .icons li {
+    margin: 0;
+    flex-shrink: 0; /* Prevent icons from shrinking */
+}
+
+.footer .icons img {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+}
+
+.footer .icons img.lighten {
+    mix-blend-mode: lighten;
+}
+
+.footer .terms {
+    margin-top: 30px;
+    margin-bottom: 10px; /* Space between terms and copyright */
+}
+
+.footer .terms a {
+    text-decoration: none;
+    color: #b9b9b9;
+    font-size: 14px;
+    transition: text-decoration 0.3s ease;
+}
+
+.footer .terms a:hover {
+    text-decoration: underline;
+}
+
+.footer > span {
+    display: block;
+    font-size: 14px;
+}
+
+
+/* --- Media Queries for Responsiveness --- */
+@media (max-width: 1024px) { /* Adjust for slightly smaller desktops/large tablets */
+    .footer-section-left, .footer-section-right {
+        width: 45%;
+    }
+}
+
+@media (max-width: 768px) {
+    .header {
+        font-size: 50px;
+        letter-spacing: 5px;
+    }
+
+    .genre h2 {
+        font-size: 30px;
+    }
+
+    .grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 10px;
+        max-width: 95%;
+    }
+
+    .card span {
+        font-size: 12px;
+    }
+
+    .search-bar-container {
+        padding: 10px 15px;
+        width: 95%;
+    }
+
+    #searchMusicInput {
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+
+    .footer {
+        padding: 30px 10px;
+    }
+
+    .footer h2 {
+        font-size: 250%;
+    }
+
+    .footer .about-text pre {
+        font-size: medium;
+    }
+
+    /* Stack footer columns on mobile */
+    .footer-section-left, .footer-section-right {
+        float: none; /* Disable float */
+        width: 100%; /* Full width */
+        text-align: center; /* Center content */
+        margin-bottom: 20px; /* Space between stacked sections */
+    }
+
+    .footer-section-left ul, .footer-section-right ul {
+        display: inline-block; /* Center list items if ul is block */
+        text-align: left; /* Keep list item text aligned left within its block */
+    }
+    .footer-section-right .home {
+        margin: 0 auto; /* Center button when floated is off */
+    }
+
+    .follow-us-section {
+        margin-top: 20px; /* Reduce margin on mobile */
+    }
+
+    .footer .icons ul {
+        gap: 15px;
+        max-width: 95%;
+    }
+
+    .footer .icons img {
+        width: 40px;
+        height: 40px;
+    }
+
+    .footer .terms a, .footer > span {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+    .header {
+        font-size: 35px;
+        letter-spacing: 3px;
+    }
+
+    .genre h2 {
+        font-size: 25px;
+    }
+
+    .grid {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        gap: 8px;
+    }
+
+    .card span {
+        font-size: 10px;
+        padding: 3px 0;
+    }
+
+    .search-bar-container {
+        padding: 8px 10px;
+    }
+
+    #searchMusicInput {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+
+    .footer {
+        padding: 30px 10px;
+    }
+
+    .footer h2 {
+        font-size: 200%;
+    }
+
+    .footer .about-text pre {
+        font-size: small;
+    }
+
+    .footer .icons img {
+        width: 35px;
+        height: 35px;
+    }
+}
+
+</style>
+</head>
+<body>
+   
+ <video autoplay muted loop class="video-bg">
+    <source src="unwatermark_video3.mp4" type="video/mp4"> <!-- Ensure this video file exists -->
+    Your browser does not support the video tag.
+  </video>
+
+  
+<h1><pre class="header">Echo Music</pre></h1>
+
+<!-- Search Bar HTML -->
+<div class="search-bar-container">
+    <input type="text" id="searchMusicInput"  onkeyup="filterMusicCards()" placeholder="Search music by title or genre..." autofocus>
+</div>
+
+<!-- Love Genre -->
+<div class="genre" id="love">
+  <h2>Love</h2>
+  <div class="grid">
+    
+    <div class="card" onclick="cardClick(0)" ondblclick="cardDoubleClick(0)">
+      <img src="https://i.scdn.co/image/ab67616d0000b273b2c4ddfc4d23c45ab16e57b9" alt="Until I Found You"><span><em><small>Until I Found You</small></em></span>
+    </div>
+    <div class="card" onclick="cardClick(1)" ondblclick="cardDoubleClick(1)">
+      <img src="https://c.saavncdn.com/360/Fitoor-Hindi-2018-20250617065010-500x500.jpg" alt="Fitoor"><span><em><small>Fitoor</small></em></span>
+    </div>
+    <div class="card" onclick="cardClick(2)" ondblclick="cardDoubleClick(2)">
+      <img src="https://i.scdn.co/image/ab67616d0000b273a24a9c872775ae61137e23f3" alt="I Think They Call This Love"><span><em><small>I Think They Call This Love</small></em></span>
+    </div>
+   
+    <div class="card" onclick="cardClick(3)" ondblclick="cardDoubleClick(3)"><img
+        src="https://c.saavncdn.com/419/blue-English-2024-20250827050756-500x500.jpg"
+        alt="Blue"><span><em><small>Blue</small></em></span></div>
+    <div class="card" onclick="cardClick(4)" ondblclick="cardDoubleClick(4)"><img
+        src="https://i.scdn.co/image/ab67616d0000b27394372cad202652e52a5c3a0e" alt="Ve Kamleya"><span><em><small>Ve
+            Kamleya</small></em></span></div>
+    <div class="card" onclick="cardClick(5)" ondblclick="cardDoubleClick(5)"><img
+        src="https://c.saavncdn.com/863/Sita-Ramam-Hindi-Original-Motion-Picture-Soundtrack-Hindi-2022-20250116113910-500x500.jpg"
+        alt="Dil Se Dil"><span><em><small>Dil Se Dil</small></em></span></div>
+    <div class="card" onclick="cardClick(6)" ondblclick="cardDoubleClick(6)"><img
+        src="https://a10.gaanacdn.com/gn_img/albums/kGxbn03y4r/GxbndvQ3y4/size_m.jpg" alt="Pal Pal Dil Ke Pass"><span><em><small>Pal Pal
+            Dil Ke Pass</small></em></span></div>
+    <div class="card" onclick="cardClick(7)" ondblclick="cardDoubleClick(7)"><img
+        src="https://c.saavncdn.com/164/Makkhi-Hindi-2012-20221213073629-500x500.jpg" alt="Are Are Are"><span><em><small>
+          Are Are Are</small></em></span></div>
+    <div class="card" onclick="cardClick(8)" ondblclick="cardDoubleClick(8)"><img
+        src="https://lh3.googleusercontent.com/JU8c3o_ftibvv9l_ZjHVOWNjP_460QWp1A5ZzALYT1e1cWNYfLg-_kq1LG6cnzBEj-0EdxNjcgzKhnajuQ=w544-h544-l90-rj"
+        alt="Dhoom Taana"><span><em><small>Dhoom Taana</small></em></span></div>
+    <div class="card" onclick="cardClick(9)" ondblclick="cardDoubleClick(9)"><img
+        src="https://lh3.googleusercontent.com/1xqh-XUTsgt5I8DBxtXX4tNx4aav-xiTiI6gqVfira4nTdAza8S3WbYhVq4lsVVgWUgpvU8eeKPrUzI2zQ=w544-h544-l90-rj"
+        alt="Dil Kaa Jo Haal Hai"><span><em><small>Dil Kaa Jo Haal Hai</small></em></span></div>
+    <div class="card" onclick="cardClick(10)" ondblclick="cardDoubleClick(10)"><img
+        src="https://lh3.googleusercontent.com/potrpsRyPeKB-tO6RMUr8w7GtQDtPOkJYWHasEkFyow0j-m8_7JQRdw0PP62t9Mj8NMTQcUUt4v3h-tz=w544-h544-l90-rj"
+        alt="Main Koi Aisa Geet Gaoon"><span><em><small>Main Koi Aisa Geet Gaoon</small></em></span></div>
+    <div class="card" onclick="cardClick(11)" ondblclick="cardDoubleClick(11)"><img
+        src="https://lh3.googleusercontent.com/BU2wudOgpgn3sa2kO2MfEvfHeMTDZjZwPZlugNy89o_PtFbdCuXAJCZm8asRa9V9Y7cMZVw4FhqAQ_4=w544-h544-l90-rj"
+        alt="Jo Tum Mere Ho"><span><em><small>Jo Tum Mere Ho</small></em></span></div>
+    <div class="card" onclick="cardClick(12)" ondblclick="cardDoubleClick(12)"><img
+        src="https://lh3.googleusercontent.com/dnMA___8pamFIWq2DbTLFGkgeChz0phQBf-5TRverJ1ud7S1D3DdSphnd10iAnzl_kfttN1w4Z9IZQ80=w544-h544-l90-rj"
+        alt="Ik Vaari Aa"><span><em><small>Ik Vaari Aa</small></em></span></div>
+    <div class="card" onclick="cardClick(13)" ondblclick="cardDoubleClick(13)"><img
+        src="https://lh3.googleusercontent.com/tEeJMtMjrn1kYLxykkcamTvDxVOCxp_Mca33EGCIFlfHwjqC_g_OxCe38mE6RMuHwktnusRsp5qM5vE3=w544-h544-l90-rj"
+        alt="Co2"><span><em><small>Co2</small></em></span></div>
+    <div class="card" onclick="cardClick(14)" ondblclick="cardDoubleClick(14)"><img
+        src="https://lh3.googleusercontent.com/l4sYZWeiQjV2VPK83q2Qym0E-4gk8U3kLKCFHHeqO1aT23nupu9nojSXO5gRk7MIiICT0TiBep-YWaPO=w544-h544-l90-rj"
+        alt="Tum Tak"><span><em><small>Tum Tak</small></em></span></div>
+    <div class="card" onclick="cardClick(15)" ondblclick="cardDoubleClick(15)"><img
+        src="https://lh3.googleusercontent.com/BzOBERVwxHIkVDpePVN8mnT0MID3cySSHcZvY84FHusBL78dxkdpWBBk8o4O5e8BaenNlHKlI9fWb_Rccw=w544-h544-l90-rj"
+        alt="For A Reason"><span><em><small>For A Reason</small></em></span></div>
+    <div class="card" onclick="cardClick(16)" ondblclick="cardDoubleClick(16)"><img
+        src="https://lh3.googleusercontent.com/xpDEOr2TeqEn1QpXosXhqtj149FzNnTgAG3oqPnpTxTbQk-oceO90Sz4Axq0s4Jp_QLGQha_um6_EG3WGQ=w544-h544-l90-rj"
+        alt="Perfect"><span><em><small>Perfect</small></em></span></div>
+    <div class="card" onclick="cardClick(17)" ondblclick="cardDoubleClick(17)"><img
+        src="https://lh3.googleusercontent.com/0lPp5SGRnGUn0NWQvBCIONNZVe7T4PTtgvFSg9Tqx3UHUjqu0-DpqC-kpSApkwa04gdi-7nhW5nSmj06cQ=w544-h544-l90-rj"
+        alt="Saiyaara"><span><em><small>Saiyaara</small></em></span></div>
+    <div class="card" onclick="cardClick(18)" ondblclick="cardDoubleClick(18)"><img
+        src="https://lh3.googleusercontent.com/9jBtpZc7LMR_a3-lqO5EyntDMCZt108s2ITFoBosD7A-knqlTHiFpg7miyUas07IHTHgy3qQM52hPIAhpA=w544-h544-l90-rj"
+        alt="Mere Dholna"><span><em><small>Mere Dholna</small></em></span></div>
+    <div class="card" onclick="cardClick(19)" ondblclick="cardDoubleClick(19)"><img
+        src="https://lh3.googleusercontent.com/q-Tkl75Elr866_A3lAd6DahkMCMiZWax--f0Qc82Qy6Glb07Jl8ZRTqHTOKT4Y465aiEcXO2CgTIDpM=w544-h544-l90-rj"
+        alt="Dagabaaz Re"><span><em><small>Dagabaaz Re</small></em></span></div>
+    <div class="card" onclick="cardClick(20)" ondblclick="cardDoubleClick(20)"><img
+        src="https://lh3.googleusercontent.com/2A3u2yyRWppXWGLDYVB55cdUUZPWZS1tsTQUMePjaRjXSvIr0A8Pk2qh6Fmsc0EJvaYihrb-CAmLU7Y=w544-h544-l90-rj"
+        alt="Ajeeb-O-Gareeb"><span><em><small>Ajeeb-O-Gareeb</small></em></span></div>
+    <div class="card" onclick="cardClick(21)" ondblclick="cardDoubleClick(21)"><img
+        src="https://lh3.googleusercontent.com/c_78J_qivxjWFU8ROwJc-Ot1uc2r1aFbni_zKQ8ZejaoABpxDAgGLJJdmG2LDfg31qJDGi-q9moKnqg=w544-h544-l90-rj"
+        alt="Jaadu Teri Nazar"><span><em><small>Jaadu Teri Nazar</small></em></span></div>
+    
+    <div class="card" onclick="cardClick(22)" ondblclick="cardDoubleClick(22)"><img
+        src="https://lh3.googleusercontent.com/c34BbkFiR_OsM6n4n0pnEl4JYcVG_dy21PlMT0wTnpbZCyv_bM4aG2_gWcNTKbGvSQYK_nCKh_C4heS8=w544-h544-l90-rj"
+        alt="Khamoshiyan"><span><em><small>Khamoshiyan</small></em></span></div>    
+  </div>
+</div>
+
+<!-- Aura Genre -->
+<div class="genre" id="aura">
+  <h2>Aura Farmer</h2>
+  <div class="grid">
+
+    <div class="card" onclick="cardClick(23)" ondblclick="cardDoubleClick(23)"><img src="https://lh3.googleusercontent.com/ARLNuNq_Ums7vWAMqROKZgv8xunB2Ie0OYcddCqkHITSwQncdsEJYXY1mKbyifPKbKsVM_GayaIoXmqQ7Q=w544-h544-l90-rj" alt="Angli Ghumai Jaata Ne"><span><em><small>Angli Ghumai Jaata Ne</small></em></span></div>
+    <div class="card" onclick="cardClick(24)" ondblclick="cardDoubleClick(24)"><img src="https://lh3.googleusercontent.com/xXcC_JlWWW9QtgaUnSfo-orjXPMMDIWzTXgYZE0NLb9DEw6__RHHpKFOGrrZUArJoUTIrD-VHXVoeYLI=w544-h544-l90-rj" alt="Powerhouse"><span><em><small>Powerhouse</small></em></span></div>
+    <div class="card" onclick="cardClick(25)" ondblclick="cardDoubleClick(25)"><img src="https://lh3.googleusercontent.com/pkXMp7DyktWsOkxNaCfZMx4_7CX0KB5iwNb5mjpuQ34XEF-V_xnnG5q9zggmhEbh3o8kEtm61tpZvrqe0A=w544-h544-l90-rj" alt="JD Intro"><span><em><small>JD Intro</small></em></span></div>
+  
+    <div class="card" onclick="cardClick(26)" ondblclick="cardDoubleClick(26)"><img src="https://lh3.googleusercontent.com/UvyrDdnRQjwA7pSCOo6ADqf5umlE_A85nvIiUexhRH1SG_ku-WKVulusngk5Xy2TXwfxokzqrWDy-YI=w544-h544-l90-rj" alt="Master the Blaster"><span><em><small>Master the Blaster</small></em></span></div>
+    <div class="card" onclick="cardClick(27)" ondblclick="cardDoubleClick(27)"><img src="https://lh3.googleusercontent.com/f3kYwLkC5vROJGEnO-l676KxN2KVWeCQvqBaINDlWTAHGVCzbnfB33s_pL6aHPL-qS5i1laGquX_Dt8V=w544-h544-l90-rj" alt="Badass"><span><em><small>Badass</small></em></span></div>
+    <div class="card" onclick="cardClick(28)" ondblclick="cardDoubleClick(28)"><img src="https://lh3.googleusercontent.com/I6lnz_hDupCnbOM3KQI2xFhFTvQAjEPNwujBYFoLwRNktjTMNdeJtepcVobn9l50Ugh2TzMb4NQNRUk=w544-h544-l90-rj" alt="Nature"><span><em><small>Nature</small></em></span></div>
+    <div class="card" onclick="cardClick(29)" ondblclick="cardDoubleClick(29)"><img src="https://lh3.googleusercontent.com/CMprw9V0FeKoCSBx3c1x5b4qq2j1-dMPglJ_QKSlOsYKyaCGVfAzxH2M3Rms0TnqQOUzSL2rR3uakfVQ=w544-h544-l90-rj" alt="Khatole 2"><span><em><small>Khatole 2</small></em></span></div>
+    <div class="card" onclick="cardClick(30)" ondblclick="cardDoubleClick(30)"><img src="https://lh3.googleusercontent.com/NSpwjOp22rdjfr5iIrPcNGolF3GGI8o5NYfIQN9kHQkvdNyHF5h0guQ11yihJW9qv6L_B13VG33rzK0c=w544-h544-l90-rj" alt="I Guess"><span><em><small>I Guess </small></em></span></div>
+    <div class="card" onclick="cardClick(31)" ondblclick="cardDoubleClick(31)"><img src="https://lh3.googleusercontent.com/bVNWXcd1gQJb2wmFCMM8oy0zMfh63pIlYFs7WmnVGkToG_-38JKAWsAuTLOgkUh4QcDqEzO5fX5tYmCo=w544-h544-l90-rj" alt="COM MEDO! (Super Slowed)"><span><em><small>COM MEDO! (Super Slowed)</small></em></span></div>
+    <div class="card" onclick="cardClick(32)" ondblclick="cardDoubleClick(32)"><img src="https://lh3.googleusercontent.com/weYQWfEwWNPOuAm34geXN1LkSYPlsJay78NnQgHC3PKsyZcdvBHIsMtqoFh3rioA4XgMdHMQd3h6vH6mbA=w544-h544-l90-rj" alt="Believer"><span><em><small>Believer </small></em></span></div>
+    <div class="card" onclick="cardClick(33)" ondblclick="cardDoubleClick(33)"><img src="https://lh3.googleusercontent.com/DweJuOvcpBewx4Oz1zegi9L5EJnkK33F5EXTOFZMyfLaN3gIi3apeJ_CI-rnabeSOhAB1V3NHGuxgco=w544-h544-l90-rj" alt="Roar Of Narsimha"><span><em><small>Roar Of Narsimha  </small></em></span></div>
+    <div class="card" onclick="cardClick(34)" ondblclick="cardDoubleClick(34)"><img src="https://lh3.googleusercontent.com/qxkprBC3H2RdudbaaWC8mN9FOej5BeN4ZP6grYSjQl-nhiAFW_KJ2OvIRf8YzAYtxJD0C8AHGzLtFQfw=w544-h544-l90-rj" alt="Beast Mode"><span><em><small>Beast Mode  </small></em></span></div>
+    <div class="card" onclick="cardClick(35)" ondblclick="cardDoubleClick(35)"><img src="https://lh3.googleusercontent.com/W9_-FJ2b3gBuE7gaMYJk-3ES5kH9GFwJ__P8mTsEJFEFhcHfNs7hyN2oY2MpfSaRSxbtMNEyIG-N0g1Gpw=w544-h544-l90-rj" alt="Neruppu Da"><span><em><small>Neruppu Da  </small></em></span></div>
+    <div class="card" onclick="cardClick(36)" ondblclick="cardDoubleClick(36)"><img src="https://lh3.googleusercontent.com/02xLoCOZmap3ihA_v28cqFz1zBcE9cMzfwzJHzsgwxyGklT0rRWkfUqztPCgAx7CdBtVM5MahamnGuJw=w544-h544-l90-rj" alt="Arjan Vailly"><span><em><small>Arjan Vailly </small></em></span></div>
+    <div class="card" onclick="cardClick(37)" ondblclick="cardDoubleClick(37)"><img src="https://lh3.googleusercontent.com/8dND7vwua7FSdtcpyzrLM2qV0CTyg87rDB-ew6lCOauQn6KBElqxGpksIZ9MRAkIYyrUPOyqdZ81KbDOzA=w544-h544-l90-rj" alt="Knife Brows"><span><em><small>Knife Brows</small></em></span></div>
+    <div class="card" onclick="cardClick(38)" ondblclick="cardDoubleClick(38)"><img src="https://lh3.googleusercontent.com/-cACAScBDoGhZdi9vW19XnzQh9YGgV0f3fS6BvYinwscktu90G9ILf8c1Z1tjF7E83ZnkxgNPFxv5Mis=w544-h544-l90-rj" alt="Russian Bandana"><span><em><small>Russian Bandana</small></em></span></div>
+    <div class="card" onclick="cardClick(39)" ondblclick="cardDoubleClick(39)"><img src="https://lh3.googleusercontent.com/ygk5Xlec3rG3BKuzYerG4vGSMdWvFg3-Izm7H3wjZtW1RnJu2cx4dPh6Lo2ZSCy4iGzzolwuR9TTHIQ=w544-h544-l90-rj" alt="Hukum"><span><em><small>Hukum</small></em></span></div>
+    <div class="card" onclick="cardClick(40)" ondblclick="cardDoubleClick(40)"><img src="https://lh3.googleusercontent.com/H30lu4g5H12a3sVboF8Y5AOmSRPG7JqcSey4ZJIZ8Jbf4e3RJTflULJjyR8cQFb61vjdsnW1wBb4LHM=w544-h544-l90-rj" alt="O Shera - Teer Te Taj"><span><em><small> O Shera - Teer Te Taj</small></em></span></div>
+
+  </div>
+</div>
+
+ 
+<!-- Devotee Genre -->
+<div class="genre" id="devotee">
+  <h2>Devotee</h2>
+  <div class="grid">
+    <div class="card" onclick="cardClick(41)" ondblclick="cardDoubleClick(41)"><img src="https://lh3.googleusercontent.com/VU4E8EzMNfd-8m5GBlSIeUW8IljblK487kUStWLQodZ9rWSBgNb1CWS434NOOBx3Zpnpj9uHsFCsYGiq=w544-h544-l90-rj" alt="Ramayana"><span><em><small>Ramayana</small></em></span></div>
+    <div class="card" onclick="cardClick(42)" ondblclick="cardDoubleClick(42)"><img src="https://lh3.googleusercontent.com/l1YuJzSFAZiZXLfnp9ptVcGwdPeTcfyvXvrEHkyMUCiAsepTssxgVJ5fci3yE252inrW4b8Tqi2VzxNU=w544-h544-l90-rj" alt="Setho Ka Seth"><span><em><small>Setho Ka Seth</small></em></span></div>
+    <div class="card" onclick="cardClick(43)" ondblclick="cardDoubleClick(43)"><img src="https://lh3.googleusercontent.com/EdTrCXeyXtptaRrvkueHmkWFv3xWHQ3kG7nhkV35yb-hJ1WtBttn5CRdQv-4FmGw2eitAStiqFzx2Y6H4g=w544-h544-l90-rj" alt="Hanuman Chalisa"><span><em><small>Hanuman Chalisa</small></em></span></div>
+    <div class="card" onclick="cardClick(44)" ondblclick="cardDoubleClick(44)"><img src="https://lh3.googleusercontent.com/OttnzYE007CPI8wFDpvdwyh9YD7Lnyw_87ZsygJ5EHY4dgRcWFmsMpsCR_jup1L4ASkfEYC2Adlo5ZkNrw=w544-h544-l90-rj" alt="Tum Prem Ho"><span><em><small>Tum Prem Ho</small></em></span></div>
+    <div class="card" onclick="cardClick(45)" ondblclick="cardDoubleClick(45)"><img src="https://lh3.googleusercontent.com/DweJuOvcpBewx4Oz1zegi9L5EJnkK33F5EXTOFZMyfLaN3gIi3apeJ_CI-rnabeSOhAB1V3NHGuxgco=w544-h544-l90-rj" alt="Hari Ki Gatha"><span><em><small>Hari Ki Gatha</small></em></span></div>
+    <div class="card" onclick="cardClick(46)" ondblclick="cardDoubleClick(46)"><img src="https://lh3.googleusercontent.com/uiGaAXQsJSBciKRN5iQ3xUvQ1ppYTDpz0d6xgHB32MSFZUTcY2m3yEqfDlDX4mW9ltFhJ_yuaKPJzTQ=w544-h544-l90-rj" alt="Chakra Dhari"><span><em><small>Chakra Dhari</small></em></span></div>
+    <div class="card" onclick="cardClick(47)" ondblclick="cardDoubleClick(47)"><img src="https://lh3.googleusercontent.com/3q9PnMNcvDeRo3xhOyUbT4NncQ_ZA2-rFnIuQJd5lew0uA0Dlkl9AKsGS_yiyl4O3Zugo0kTrl1Gm5Q5=w544-h544-l90-rj" alt="Krishna Trance"><span><em><small>Krishna Trance</small></em></span></div>
+    <div class="card" onclick="cardClick(48)" ondblclick="cardDoubleClick(48)"><img src="https://lh3.googleusercontent.com/y1SVe53jYTYabZCU5uNsVuFmWstID-jV_GyLZLUOIJEHiA49FjWKw_SEwLfvSL8hSwkYRO1f3t_ItDT-=w544-h544-l90-rj" alt="Ihihaas Bna Dunga"><span><em><small>Ihihaas Bna Dunga </small></em></span></div>
+    <div class="card" onclick="cardClick(49)" ondblclick="cardDoubleClick(49)"><img src="https://lh3.googleusercontent.com/1CFGx2RBIDDhqxli7xazjUkr0B1IxH58cEYWE6VeVxeq7cIQ-HXZpYABghCsXa8sk_KysYYo7mJAOKt-=w544-h544-l90-rj" alt="Namo-Namo"><span><em><small>Namo-Namo </small></em></span></div>
+    <div class="card" onclick="cardClick(50)" ondblclick="cardDoubleClick(50)"><img src="https://lh3.googleusercontent.com/FkmpVFcgnZ3kZYB_RP-w2KlR5d7ckgSCjn3BdVzNVGs1m8FEtIYpsYjMwH_Hjj3PT2DrUbChBBIbNjsJow=w544-h544-l90-rj" alt="Mere Ghar Ram Ayae Hain"><span><em><small>Mere Ghar Ram Ayae Hain</small></em></span></div>
+    <div class="card" onclick="cardClick(51)" ondblclick="cardDoubleClick(51)"><img src="https://lh3.googleusercontent.com/8xYTrbmArUxh5HAs0AFJg0aW45EDiiU3ztN6jIaMIlyUQlQCD3A6R7SZPEsccJxbTCEQzOJBnPYCT9g=w544-h544-l90-rj" alt="Bajrang Baan"><span><em><small>Bajrang Baan </small></em></span></div>
+    <div class="card" onclick="cardClick(52)" ondblclick="cardDoubleClick(52)"><img src="https://lh3.googleusercontent.com/eP_MifVIMMTw0Dlqst9xI5EPxyR2kuaEytEp65X65VoaWgNdIMSYGbM09H08dnkq2uh8GJY2TvvRUmM-=w544-h544-l90-rj" alt="Balaji Accha Lage Se"><span><em><small>Balaji Accha Lage Se </small></em></span></div>
+    <div class="card" onclick="cardClick(53)" ondblclick="cardDoubleClick(53)"><img src="https://lh3.googleusercontent.com/makJk-zzt-IS2kU4f4E4ymj2kJbb8CHE5vBJHkWIeguS2q5F7CPD4lw2gZghvZBqr9ggDeW2VDfyYzYJ=w544-h544-l90-rj" alt="MOURYA RE"><span><em><small>MOURYA RE </small></em></span></div>
+    <div class="card" onclick="cardClick(54)" ondblclick="cardDoubleClick(54)"><img src="https://lh3.googleusercontent.com/qf-QGAshyY88IBGFMNcdfr5QaUnue729Sl9pWAVKjTPjk7zsrHg030Gt82i5zUR1qY6jgOPVg--ZBUo=w544-h544-l90-rj" alt="Shyam Aarti"><span><em><small>Shyam Aarti </small></em></span></div>
+    <div class="card" onclick="cardClick(55)" ondblclick="cardDoubleClick(55)"><img src="https://lh3.googleusercontent.com/3-LWjoeqid9LtQwlyLnOL-IfmjOwmddxKiNmyx9SX_q0gVDYh_ttF2KYq1m0Lf8f7qOpMqM8lUYWxhyt=w544-h544-l90-rj" alt="Dena Hai To De De Saavre"><span><em><small>Dena Hai To De De Saavre</small></em></span></div>
+    <div class="card" onclick="cardClick(56)" ondblclick="cardDoubleClick(56)"><img src="https://lh3.googleusercontent.com/Ks-NwGkgiFc09_2GR8dHPkvrijt5j7mVA7XUzY2VXOwmP0tbft_08EvHPLIYcVYmqmVW6vHlEh_BNpXS=w544-h544-l90-rj" alt="SHENDUR LAAL CHADHAYO"><span><em><small>SHENDUR LAAL CHADHAYO</small></em></span></div>
+    <div class="card" onclick="cardClick(57)" ondblclick="cardDoubleClick(57)"><img src="https://lh3.googleusercontent.com/8R_aFURgdR4cGtk_ScZpX2UoQFqW5x7MOeFSvoh7yvdlK6UJ0tk6zEuyxxv2xhTt2-6OhqKWAsAhZeU=w544-h544-l90-rj" alt="Deva Shree Ganesha"><span><em><small>Deva Shree Ganesha </small></em></span></div>
+    <div class="card" onclick="cardClick(58)" ondblclick="cardDoubleClick(58)"><img src="https://lh3.googleusercontent.com/-Rr5YSYLLbq7mbxuiuHJnjaNhtZ3jlq97kq6TDfRGyWuh_HoBFj0a2Ybhn25JeSl8zqVBbvFDkeOj4gZlg=w544-h544-l90-rj" alt="Aasman Ko Chukar"><span><em><small>Aasman Ko Chukar </small></em></span></div>
+    <div class="card" onclick="cardClick(59)" ondblclick="cardDoubleClick(59)"><img src="https://lh3.googleusercontent.com/ihBSRbLLVGdkYTGNOGQS8uI5wW79tS9arsvYnS6xJjdnfvG7_2wORhTFPsFO73M3AlK3J8PjumzDIUw=w544-h544-l90-rj" alt="JAI SHRI RAM"><span><em><small>JAI SHRI RAM </small></em></span></div>
+    <div class="card" onclick="cardClick(60)" ondblclick="cardDoubleClick(60)"><img src="https://lh3.googleusercontent.com/mz_Ab6dsLo1tAv73vJ_eGQwBDoQF_9nA_ui2pkl3nhh5rfv2jgGO1tluCrG0oOVhTpFs8DGaUwenuehiYA=w544-h544-l90-rj" alt="Om Jai Jagdish Hare"><span><em><small>Om Jai Jagdish Hare </small></em></span></div>
+     
+  </div>
+</div>
+
+<audio id="player"></audio>
+
+<script>
+  
+const player = document.getElementById("player");
+const cards = document.querySelectorAll(".card");
+// Make sure all song files exist in the specified path or current directory
+const songs = [
+  "Stephen Sanchez - Until I Found You (Lyrics).mp3","Yeh Fitoor Mera Arijit Singh 128 Kbps.mp3","I Think They Call This Love (Cover).mp3","Blue-Yung-Kai (1).mp3" ,"Ve Kamleya Rocky Aur Rani Kii Prem Kahaani 128 Kbps.mp3",
+  "Dil Se Dil - Sita Ramam Hindi - Sita Ramam Hindi 2022 320KBPS.mp3","Pal Pal Dil Ke Paas (Blackmail) - (Raag.Fm).mp3","Are Are Are - Makkhi 128 Kbps.mp3","Dhoom Taana Om Shanti Om 128 Kbps.mp3",
+  "Dil Kaa Jo Haal Hai Besharam 128 Kbps.mp3","Main Koi Aisa Geet Gaoon - Yes Boss 128 Kbps.mp3","128-Jo Tum Mere Ho - Anuv Jain 128 Kbps.mp3","Ik Vaari Aa Raabta 128 Kbps.mp3",
+  "Co2(Pagal-World.Com.In).mp3","Tum Tak Raanjhanaa 128 Kbps.mp3","For_A_Reason_1.mp3","Perfect-(Mr-Jat.in).mp3","Title Track Saiyaara 128 Kbps.mp3","Ami Je Tomar Kartik X Vidya.mp3",
+  "Dagabaaz Re Dabangg 2 128 Kbps.mp3","Ajeeb-O-Gareeb.mp3","Jaadu Teri Nazar Darr 128 Kbps.mp3","Khamoshiyan Jeet Gannguli 128 Kbps.mp3",
+  "Angli Ghumai Jaata Ne feat Sweta Chahuan.mp3","Powerhouse.mp3","JD-Intro-MassTamilan.io.mp3","Master-the-Blaster-MassTamilan.io.mp3","Badass.mp3",
+  "Nature - Kabira (pagalall.com).mp3","2 Khatole.mp3","i-guess-128-ytshorts.savetube.me.mp3","COM MEDO (Super Slowed)-(SambalpuriStar.In).mp3","Imagine Dragons - Believer (Official Music Video).mp3",
+  "Roar Of Narasimha(KoshalWorld.Com).mp3","Beast Mode Beast 128 Kbps.mp3","Neruppu-Da.mp3","Arjan Vailly Animal 128 Kbps.mp3","Knife Brows Dnw Vol. 1 128 Kbps.mp3",
+  "Russian Bandana Dhanda Nyoliwala 128 Kbps.mp3","Hukum---Thalaivar-Alappara-MassTamilan.dev.mp3","O Shera - Teer Te Taj (Film Version).mp3",
+  "Ramayana (The Introduction Theme).mp3","Setho_Ka_Seth_1.mp3","Lo-fi Version शर हनमन चलस  Slowed & Reverb  Shree Hanuman Chalisa - Rasraj Ji Maharaj.mp3",
+  "Tum-Prem-Ho-Reprise-｜-Lyrical-Video-｜-RadhaKrishn-｜-MOhit-Lalwani-｜-Surya-Raj-Kamal-｜-Bharat-Kamal-Feoea8FQTI0-140-audio-only-1733716479id.mp3","Hari Ki Gatha(KoshalWorld.Com).mp3",
+  "Chakradhari - PagalHits.mp3","Krishna-Trance-MassTamilan.dev.mp3","Itihaas-Bana-Dunga.mp3","Namo Namo - Lyrical  Kedarnath  Sushant Rajput  Sara Ali Khan  Amit Trivedi  Amitabh B.mp3",
+  "Jubin Nautiyal_ Mere Ghar Ram Aaye Hain (Lyrical) Payal D  Manoj M, Dipika, Lovesh  Bhushan K.mp3","Lofi Version  Bajrang Baan (बजरग बण)  With Lyrics - Rasraj Ji Maharaj  @lofibhajans.mp3",
+  "बलज अचछ लग स  Balaji Achha Lage Se  Kanhaiya Mittal  Most Popular Balaji Bhajan  Sonotek.mp3" ,"Mourya Re (Full Song)  Don  Shahrukh Khan  Shankar Mahadevan  T-Series.mp3",
+  "Shree Shyam Ji Ki Aarti  Ardas.mp3","Dena Hai To De De Sanware - Khatushyam Bhajan  Pt. Ram Avtar Sharma  T-Series Haryanvi Bhakti.mp3","Shendur Laal Chadhayo (Aarti) Lyrical Video  Vaastav - The Reality  Ravindra Sathe Sanjay Dutt.mp3",
+  "Deva Shree Ganesha - Full Video  Agneepath  Hrithik Roshan, Priyanka Chopra  Ajay - Atul.mp3","Aasman Ko Chukar.mp3","Jai Shri Ram (Full Video) Adipurush  Prabhas  Ajay-Atul, Manoj Muntashir S  Om Raut  Bhushan K.mp3","ओम जय जगदश हर  ॐ जय जगदश हर.mp3"
+];
+
+// This loop is redundant if all songs are already in the array.
+// If you intend to have additional songs named music1.mp3, music2.mp3 etc.,
+// then make sure those files actually exist.
+// for(let i=1;i<=60;i++){ songs.push(`music/music${i}.mp3`); }
+
+let currentIndex = -1;
+let isLooping = false;
+
+function highlightCard(index, loop=false){
+  cards.forEach(c => c.classList.remove("playing","looping"));
+  if(index>=0){ loop ? cards[index].classList.add("looping") : cards[index].classList.add("playing"); }
+}
+
+function playMusic(index, loop=false){
+  currentIndex=index;
+  player.src = songs[currentIndex];
+  player.loop = loop;
+  isLooping = loop;
+  player.play();
+  highlightCard(currentIndex, loop);
+}
+
+function cardClick(index){
+  if(currentIndex===index){ player.paused ? player.play() : player.pause(); }
+  else { playMusic(index,false); }
+}
+
+function cardDoubleClick(index){ playMusic(index,true); }
+
+player.addEventListener("ended",()=>{
+  if(!isLooping){
+    // This logic assumes genres have 15 songs each.
+    // If your genres have varying numbers of songs, this will need adjustment.
+    // For now, it will continue playing within the "block" of 15 songs.
+    let genreStart = Math.floor(currentIndex/15)*15;
+    let genreEnd = Math.min(genreStart + 15, songs.length); // Ensure it doesn't go past total songs
+    currentIndex++;
+    if(currentIndex>=genreEnd) currentIndex = genreStart;
+    playMusic(currentIndex,false);
+  }
+});
+
+// --- Search Functionality ---
+function filterMusicCards() {
+    const input = document.getElementById('searchMusicInput');
+    const filter = input.value.toUpperCase(); // Get search query and convert to uppercase for case-insensitive search
+    const allCards = document.querySelectorAll('.card'); // Get all music cards
+
+    allCards.forEach(card => {
+        const titleElement = card.querySelector('span small');
+        const imgAlt = card.querySelector('img').alt; // Get alt text from image
+        const genreElement = card.closest('.genre'); // Get the parent genre div
+
+        let textContent = '';
+        if (titleElement) {
+            textContent += titleElement.textContent || titleElement.innerText;
+        }
+        if (imgAlt) {
+            textContent += '' + imgAlt; // Add alt text to content to search
+        }
+        if (genreElement && genreElement.querySelector('h2')) {
+            textContent += '' + genreElement.querySelector('h2').textContent; // Add genre title to content to search
+        }
+
+        if (textContent.toUpperCase().indexOf(filter) > -1) {
+            card.classList.remove('hide-card'); // Show the card if it matches
+        } else {
+            card.classList.add('hide-card'); // Hide the card if it doesn't match
+        }
+    });
+
+    // Optionally hide/show genre headers if all their cards are hidden/shown
+    const genres = document.querySelectorAll('.genre');
+    genres.forEach(genre => {
+        const genreCards = genre.querySelectorAll('.card');
+        let allHidden = true;
+        genreCards.forEach(card => {
+            if (!card.classList.contains('hide-card')) {
+                allHidden = false;
+            }
+        });
+
+        if (allHidden) {
+            genre.style.display = 'none';
+        } else {
+            genre.style.display = 'block'; // Or 'flex' if you use flex for genre layout
+        }
+    });
+}
+
+</script>
+
+
+<!-- Footer -->
+    <footer class="footer">
+        <h2 class="about-us-title" style="color: #e43cb2; font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;" >About Us</h2>
+        <div class="about-text">
+            <h2>
+            <pre style="color: #ffffff; font-family:Verdana, Geneva, Tahoma, sans-serif; font-size: large; font-weight: bolder;">Welcome to Echo Connect, my favorite destination for everything music.
+            Here, music is not just sound — it’s an emotion, a story, and a connection that brings people together.
+            For me, this is more than just a site — it’s my favorite place to listen, learn, and share the joy of music with you.
+            So turn up the volume, feel the rhythm, and let’s enjoy the journey together!</pre></h2>
+        </div>
+        
+        <div class="footer-links-container">
+          
+          <div class="footer-section-left">
+            <h2 style=" color: #e43cb2; font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">Connect us</h2>
+            <ul>
+              <li>
+                <p> <a href="tel:9310770258">+91 9310770258</a></p>
+              </li>
+              <li>
+                <p> <a href="mailto:parvcoding4@gmail.com">parvcoding4@gmail.com</a></p>
+              </li>
+            </ul>
+          </div>
+          <div class="footer-section-right">
+              <h2 style="color: #e43cb2; font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">Quick Links</h2>
+  
+              <ul>
+                  <li ><a class="home" href="#">Home</a></li>
+              </ul>
+          </div>
+        </div>
+
+        <div class="follow-us-section">
+          <h2 style="color: #e43cb2; font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;" >Follow Us</h2>
+          
+          <div class="icons">
+              <ul>
+                  <li>
+                      <a href="https://github.com/cjasoncode"><img src="github.jpg" alt="GitHub" class="lighten"></a>
+                  </li>
+                  <li>
+                      <a href="https://www.instagram.com/cjasoncode"><img src="insta.png" alt="Instagram"></a>
+                  </li>
+                  <li>
+                      <a href="https://www.linkedin.com/in/parv-sharma-b38468339"><img src="link.jpg" alt="LinkedIn"></a>
+                  </li>
+                  <li>
+                      <a href="https://x.com/Parvbhardwaaj"><img src="x.jpg" alt="Twitter"></a>
+                  </li>
+                  <li>
+                      <a href="https://wa.me/919310770258?text=Hey%2C%20how%20are%20you%3F😊"><img src="whatsapp.jpg" alt="WhatsApp" class="lighten"></a>
+                  </li>
+              </ul>
+          </div>
+        </div>
+
+        <div style="clear: both; margin-top: 50px;"></div> <!-- Clear floats before terms/copyright -->
+
+        <div class="terms">
+            <p><a href='#'>Terms & Conditions</a></p>
+        </div>
+
+        <span style="color: white;   font-family: Arial, Helvetica, sans-serif;" >&copy; 2025 <span style="color: #e43cb2; font-weight: bold;" >ECHO CONNECT</span> . All rights reserved.</span>  
+        
+    </footer>
+</body>
+</html>
